@@ -1,0 +1,18 @@
+steps:
+  # Build and Push Container 1
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/kubernates-12345/container1:latest", "."]
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/kubernates-12345/container1:latest"]
+
+  # Deploy Container 1 to GKE
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gcloud container clusters get-credentials pratham-cluster --region us-central1
+        kubectl apply -f deployment.yaml
+        kubectl apply -f service.yaml
+images:
+  - "gcr.io/kubernates-12345/container1:latest"

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: container1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: container1
+  template:
+    metadata:
+      labels:
+        app: container1
+    spec:
+      containers:
+        - name: container1
+          image: gcr.io/kubernates-12345/container1:latest
+          ports:
+            - containerPort: 6000
+          volumeMounts:
+            - mountPath: /pratham_PV_dir
+              name: pratham-volume
+      volumes:
+        - name: pratham-volume
+          persistentVolumeClaim:
+            claimName: pratham-pvc
