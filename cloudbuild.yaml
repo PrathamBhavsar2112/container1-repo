@@ -1,7 +1,9 @@
 steps:
-  # Build and Push Container 1
+  # Build the Docker image for Container 1
   - name: "gcr.io/cloud-builders/docker"
     args: ["build", "-t", "gcr.io/kubernates-12345/container1:latest", "."]
+  
+  # Push the image to Google Container Registry (GCR)
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/kubernates-12345/container1:latest"]
 
@@ -14,8 +16,11 @@ steps:
         gcloud container clusters get-credentials pratham-cluster --region us-central1
         kubectl apply -f deployment.yaml
         kubectl apply -f service.yaml
+
+# Specify the images built and pushed
 images:
   - "gcr.io/kubernates-12345/container1:latest"
 
+# Set logging to Cloud Logging only
 options:
   logging: CLOUD_LOGGING_ONLY
