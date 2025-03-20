@@ -4,8 +4,6 @@ steps:
     args: ["build", "-t", "gcr.io/kubernates-12345/container1:latest", "."]
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/kubernates-12345/container1:latest"]
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/kubernates-12345/container1:latest', '.']
 
   # Deploy Container 1 to GKE
   - name: "gcr.io/cloud-builders/gcloud"
