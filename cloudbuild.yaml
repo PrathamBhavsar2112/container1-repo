@@ -1,13 +1,8 @@
 steps:
-  # Build the Docker image
   - name: "gcr.io/cloud-builders/docker"
     args: ["build", "-t", "us-central1-docker.pkg.dev/kubernates-12345/pratham-repo/container1:latest", "."]
-  
-  # Push the image to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "us-central1-docker.pkg.dev/kubernates-12345/pratham-repo/container1:latest"]
-
-  # Update the deployment image in GKE
   - name: "gcr.io/cloud-builders/gcloud"
     entrypoint: "bash"
     args:
@@ -15,9 +10,8 @@ steps:
       - |
         gcloud container clusters get-credentials pratham-cluster --region us-central1
         kubectl set image deployment/container1 container1=us-central1-docker.pkg.dev/kubernates-12345/pratham-repo/container1:latest
-
+        kubectl rollout restart deployment/container1
 images:
   - "us-central1-docker.pkg.dev/kubernates-12345/pratham-repo/container1:latest"
-
 options:
   logging: CLOUD_LOGGING_ONLY

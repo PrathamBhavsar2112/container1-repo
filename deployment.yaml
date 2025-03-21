@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: container1
-          image: gcr.io/kubernates-12345/container1:latest
+          image: us-central1-docker.pkg.dev/kubernates-12345/pratham-repo/container1:latest
           ports:
             - containerPort: 6000
           volumeMounts:
