@@ -54,7 +54,7 @@ def calculate():
         return jsonify({"file": file_name, "error": "File not found."}), 404
 
     except Exception:
-        return jsonify({"file": file_name, "error": "Invalid JSON input."}), 400  # Fixing the null check issue
+        return jsonify({"file": file_name, "error": "Invalid JSON input."}), 400  
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6000, debug=False)
