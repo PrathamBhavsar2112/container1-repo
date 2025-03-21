@@ -43,9 +43,9 @@ def calculate():
         return response.json(), response.status_code
 
     except requests.exceptions.RequestException as e:
-        # If Container 2 returns 404, propagate it; don’t override unless it’s a connection issue
-        if e.response and e.response.status_code == 404:
-            return jsonify({"file": file_name, "error": "File not found."}), 404
+        # Pass through Container 2’s exact response if possible
+        if e.response:
+            return e.response.json(), e.response.status_code
         return jsonify({"file": file_name, "error": "Error processing request."}), 500
     except Exception:
         return jsonify({"file": file_name, "error": "Invalid JSON input."}), 400
