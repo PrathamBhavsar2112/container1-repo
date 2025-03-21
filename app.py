@@ -1,39 +1,15 @@
 from flask import Flask, request, jsonify
 import os
-import requests
+import csv
 
 app = Flask(__name__)
 
 PERSISTENT_VOLUME_PATH = "/pratham_PV_dir/"
-CONTAINER2_URL = "http://container2:5000/calculate"
 
-@app.route("/store-file", methods=["POST"])
-def store_file():
+@app.route("/sum", methods=["POST"])
+def sum_values():
     try:
         data = request.get_json()
-        if not data or "file" not in data or "data" not in data:
-            return jsonify({"file": None, "error": "Invalid JSON input."}), 400
-
-        file_name = data["file"]
-        file_content = data["data"]
-
-        os.makedirs(PERSISTENT_VOLUME_PATH, exist_ok=True)
-        file_path = os.path.join(PERSISTENT_VOLUME_PATH, file_name)
-        with open(file_path, "w") as f:
-            f.write(file_content)
-
-        return jsonify({"file": file_name, "message": "Success."}), 200
-
-    except Exception:
-        return jsonify({"file": None, "error": "Error while storing the file to the storage."}), 500
-
-
-@app.route("/calculate", methods=["POST"])
-def calculate():
-    try:
-        data = request.get_json()
-
-        # Fix: Ensure exact error message for missing fields
         if not data or "file" not in data or "product" not in data:
             return jsonify({"file": None, "error": "Invalid JSON input."}), 400
 
@@ -41,20 +17,34 @@ def calculate():
         product_name = data["product"]
         file_path = os.path.join(PERSISTENT_VOLUME_PATH, file_name)
 
+        # ✅ Fix: If file does not exist, return "File not found."
         if not os.path.exists(file_path):
             return jsonify({"file": file_name, "error": "File not found."}), 404
 
-        payload = {"file": file_name, "product": product_name}
-        response = requests.post(CONTAINER2_URL, json=payload, timeout=10)
-        response.raise_for_status()
+        total_sum = 0
+        with open(file_path, "r") as f:
+            lines = f.readlines()
 
-        return response.json(), response.status_code
+            # ✅ Fix: Normalize header (removes spaces and checks lowercase)
+            header = lines[0].strip().lower().replace(" ", "")
+            if header != "product,amount":
+                return jsonify({"file": file_name, "error": "Input file not in CSV format."}), 400
 
-    except requests.exceptions.RequestException:
-        return jsonify({"file": file_name, "error": "File not found."}), 404
+            # ✅ Fix: Check CSV row structure and validate numeric values
+            for line in lines[1:]:
+                parts = line.strip().split(",")
+
+                if len(parts) != 2 or not parts[1].strip().isdigit():
+                    return jsonify({"file": file_name, "error": "Input file not in CSV format."}), 400
+
+                product, amount = parts
+                if product.strip() == product_name:
+                    total_sum += int(amount.strip())
+
+        return jsonify({"file": file_name, "sum": total_sum}), 200
 
     except Exception:
-        return jsonify({"file": file_name, "error": "Invalid JSON input."}), 400  
+        return jsonify({"file": file_name, "error": "Input file not in CSV format."}), 400
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=6000, debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=False)
