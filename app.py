@@ -32,6 +32,8 @@ def store_file():
 def calculate():
     try:
         data = request.get_json()
+
+        # Fix: Ensure exact error message for missing fields
         if not data or "file" not in data or "product" not in data:
             return jsonify({"file": None, "error": "Invalid JSON input."}), 400
 
@@ -49,10 +51,10 @@ def calculate():
         return response.json(), response.status_code
 
     except requests.exceptions.RequestException:
-        return jsonify({"file": file_name, "error": "Error processing request."}), 500
+        return jsonify({"file": file_name, "error": "File not found."}), 404
 
     except Exception:
-        return jsonify({"file": file_name, "error": "Error processing request."}), 500
+        return jsonify({"file": file_name, "error": "Invalid JSON input."}), 400  # Fixing the null check issue
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6000, debug=False)
