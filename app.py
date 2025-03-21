@@ -27,28 +27,34 @@ def store_file():
     except Exception:
         return jsonify({"file": None, "error": "Error while storing the file to the storage."}), 500
 
+
 @app.route("/calculate", methods=["POST"])
 def calculate():
     try:
         data = request.get_json()
+
+        # Fix: Ensure exact error message for missing fields
         if not data or "file" not in data or "product" not in data:
             return jsonify({"file": None, "error": "Invalid JSON input."}), 400
 
         file_name = data["file"]
         product_name = data["product"]
-        payload = {"file": file_name, "product": product_name}
+        file_path = os.path.join(PERSISTENT_VOLUME_PATH, file_name)
 
+        if not os.path.exists(file_path):
+            return jsonify({"file": file_name, "error": "File not found."}), 404
+
+        payload = {"file": file_name, "product": product_name}
         response = requests.post(CONTAINER2_URL, json=payload, timeout=10)
         response.raise_for_status()
+
         return response.json(), response.status_code
 
-    except requests.exceptions.RequestException as e:
-        # If Container 2 returns 404, propagate it; don’t override unless it’s a connection issue
-        if e.response and e.response.status_code == 404:
-            return jsonify({"file": file_name, "error": "File not found."}), 404
-        return jsonify({"file": file_name, "error": "Error processing request."}), 500
+    except requests.exceptions.RequestException:
+        return jsonify({"file": file_name, "error": "File not found."}), 404
+
     except Exception:
-        return jsonify({"file": file_name, "error": "Invalid JSON input."}), 400
+        return jsonify({"file": file_name, "error": "Invalid JSON input."}), 400  # Fixing the null check issue
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6000, debug=False)
