@@ -1,5 +1,5 @@
 steps:
-  # Build the Docker image for Container 1
+  # Build the Docker image
   - name: "gcr.io/cloud-builders/docker"
     args: ["build", "-t", "us-central1-docker.pkg.dev/kubernates-12345/pratham-repo/container1:latest", "."]
   
@@ -7,23 +7,17 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "us-central1-docker.pkg.dev/kubernates-12345/pratham-repo/container1:latest"]
 
-  # Deploy Container 1 to GKE
+  # Update the deployment image in GKE
   - name: "gcr.io/cloud-builders/gcloud"
     entrypoint: "bash"
     args:
       - "-c"
       - |
         gcloud container clusters get-credentials pratham-cluster --region us-central1
-        kubectl apply -f deployment.yaml
-        kubectl apply -f service.yaml
+        kubectl set image deployment/container1 container1=us-central1-docker.pkg.dev/kubernates-12345/pratham-repo/container1:latest
 
-# Specify the images built and pushed
 images:
   - "us-central1-docker.pkg.dev/kubernates-12345/pratham-repo/container1:latest"
 
-# Set logging to Cloud Logging only
 options:
   logging: CLOUD_LOGGING_ONLY
-
-
-#test 2
