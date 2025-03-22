@@ -28,10 +28,7 @@ def store_file():
 @app.route("/calculate", methods=["POST"])
 def calculate():
     data = request.get_json()
-    # Explicitly check for None values in addition to missing keys
-    if (not data or 
-        "file" not in data or data["file"] is None or 
-        "product" not in data or data["product"] is None):
+    if not data or "file" not in data or "product" not in data:
         return jsonify({"file": None, "error": "Invalid JSON input."}), 400
 
     file_name = data["file"]
@@ -42,6 +39,7 @@ def calculate():
         response = requests.post(CONTAINER2_URL, json=payload, timeout=5)
         return response.json(), response.status_code
     except requests.exceptions.RequestException:
+        # Simplified: Let Container 2 handle most errors, fallback to generic error
         return jsonify({"file": file_name, "error": "Container 2 is unreachable."}), 500
 
 if __name__ == "__main__":
