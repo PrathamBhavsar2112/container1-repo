@@ -4,6 +4,8 @@ import requests
 
 app = Flask(__name__)
 
+#test 1
+
 PERSISTENT_VOLUME_PATH = "/pratham_PV_dir/"
 CONTAINER2_URL = "http://container2:5000/calculate"
 
@@ -28,7 +30,6 @@ def store_file():
 @app.route("/calculate", methods=["POST"])
 def calculate():
     data = request.get_json()
-    # Explicitly check for None values in addition to missing keys
     if (not data or 
         "file" not in data or data["file"] is None or 
         "product" not in data or data["product"] is None):
